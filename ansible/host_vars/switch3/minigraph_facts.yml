@@ -394,7 +394,7 @@ minigraph_lo_interfaces:
     name: Loopback0
     prefixlen: 32
 minigraph_mgmt_interface:
-    addr: 10.224.23.69
+    addr: 10.224.23.81
     gwaddr: 10.224.23.254
     mask: 255.255.255.0
     prefixlen: '24'
