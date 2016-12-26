@@ -5,30 +5,29 @@
     disk_image: "{{ root_path }}/disks/{{ vm_name }}_hdd.vmdk"
   with_dict: "{{ VMs }}"
 
-- name: Calculating vlan_base. vm set {{ id }}
-  shell: ifconfig -a | fgrep {{ external_iface }}. | cut -f1 -d ' ' | cut -f2 -d '.' | sort -n | head -n 1
-  register: vlan_base_output
+- name: Unbind external ifaces to VM set. vm set {{ id }}
+  vm_network:
+    cmd: 'unbind'
+    vm_set_id: "{{ id }}"
+    port1_bridge: "{{ port1_bridge }}"
+    vm_set_dict: "{{ VMs }}"
+    fp_mtu: "{{ fp_mtu_size }}"
+    ext_iface: "{{ external_iface }}"
+    vlan_base: "{{ vlan_base }}"
 
-- name: Setting vlan_base {{ vlan_base_output.stdout }}. vm set {{ id }}
-  set_fact: vlan_base={{ vlan_base_output.stdout }}
+- name: Remove ptf docker container. vm set {{ id }}
+  docker:
+    name: ptf_injected_{{ id }}
+    image: "{{ docker_registry_host }}/{{ docker_image }}"
+    state: absent
 
-- name: Remove external interfaces. vm set {{ id }}
-  include: delete_vlan.yml
-  vars:
-    port0_bridge: "br-vm{{ id }}-vlan{{ item.value.vlan|int - 1 }}"
-    vlan_iface: "{{ external_iface }}.{{ vlan_base|int + item.value.vlan|int - 1 }}"
-  with_dict: "{{ VMs }}"
+- name: Destroy VM set network. vm set {{ id }}
+  vm_network:
+    cmd: 'destroy'
+    vm_set_id: "{{ id }}"
+    port1_bridge: "{{ port1_bridge }}"
+    vm_set_dict: "{{ VMs }}"
+    fp_mtu: "{{ fp_mtu_size }}"
+    ext_iface: "{{ external_iface }}"
+    vlan_base: "{{ vlan_base }}"
 
-- name: Remove interfaces. vm set {{ id }}
-  include: delete_bridge.yml
-  vars:
-    port0_bridge: "br-vm{{ id }}-vlan{{ item.value.vlan|int - 1 }}"
-  with_dict: "{{ VMs }}"
-
-- name: Disable port1 bridge {{ port1_bridge }}. vm set {{ id }}
-  command: ifconfig {{ port1_bridge }} down
-  when: port1_bridge in ansible_interfaces
-
-- name: Destroy port1 bridge {{ port1_bridge }}. vm set {{ id }}
-  command: brctl delbr {{ port1_bridge }}
-  when: port1_bridge in ansible_interfaces

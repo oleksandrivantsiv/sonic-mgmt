@@ -1,0 +1,26 @@
+# Tasks for internal mlnx lab
+
+- name: Get docker registry certificate from arc-build-server
+  fetch:
+    src: /docker/certs/domain.crt
+    dest: /tmp/
+    flat: true
+  delegate_to: arc-build-server
+
+- name: Create directory for certificate
+  file:
+    path: /etc/docker/certs.d/arc-build-server:5000
+    state: directory
+    mode: 0755
+
+
+- name: Copy registry certificate to switch
+  copy:
+    src: /tmp/domain.crt
+    dest: /etc/docker/certs.d/arc-build-server:5000/ca.crt
+
+- name: Change onie platform version
+  lineinfile:
+    dest: /host/machine.conf
+    regexp: '^onie_platform=x86_64-mlnx_x86-r5.0.1410'
+    line: 'onie_platform=x86_64-mlnx_x86-r5.0.1400'

@@ -12,8 +12,9 @@
 ## | present     |      |              | present  |                     | y              |             |
 ## | started     |      |              | present  | started             | y              |             |
 ## | reloaded    | y    | pulled?      | reloaded | restarted if pulled | y              | if pulled   |
+## |             |      |              |          | started if not      |                |             |
 ## | restarted   |      |              | present  | restarted           | y              |             |
-## | stopped     |      | y            | stopped  |                     | n              |             |
+## | stopped     |      | y            | stopped  | stopped             | n              |             |
 ## | killed      |      | y            | killed   |                     | n              |             |
 ## | absent      |      | y            | absent   |                     | n              | y           |
 ## +-------------+------+--------------+----------+---------------------+----------------+-------------+
@@ -33,6 +34,10 @@
   set_fact:
     docker_volumes: []
   when: docker_volumes is undefined
+- name: "{{docker_container}} - Set docker variable - docker_volumes_from"
+  set_fact:
+    docker_volumes_from: []
+  when: docker_volumes_from is undefined
 - name: "{{docker_container}} - Set docker variable - docker_privileged"
   set_fact:
     docker_privileged: no
@@ -90,8 +95,8 @@
 
 - block:
   ## Clean up images before pulling
-  ##- name: "{{docker_container}} - Clean up images before pulling"
-  ##  include: sonicdocker_clean.yml
+  - name: "{{docker_container}} - Clean up images before pulling"
+    include: sonicdocker_clean.yml
 
   ## Pull docker image from registry
   - name: "{{docker_container}} - Pull docker image from registry"
@@ -138,33 +143,43 @@
     password: "{{docker_registry_password}}"
     email: "@"
     volumes: "{{docker_volumes}}"
+    volumes_from: "{{docker_volumes_from}}"
     privileged: "{{docker_privileged}}"
     env: "{{docker_env}}"
     log_driver: "{{docker_log_driver}}"
     log_opt: "{{docker_log_opt}}"
 
 ## Container service operation
-- name: "{{docker_container}} - Post docker - start container service"
-  become: true
-  service: name="{{docker_container}}"
-           state=started
-  when: docker_state == 'started'
 - name: "{{docker_container}} - Post docker - restart container service"
   become: true
   service: name="{{docker_container}}"
            state=restarted
   when: "docker_state == 'restarted' or      \
         docker_state == 'reloaded' and 'Status: Downloaded newer image' in pull_result.stdout"
+
+- name: "{{docker_container}} - Post docker - start container service"
+  become: true
+  service: name="{{docker_container}}"
+           state=started
+  when: "docker_state == 'started' or docker_state == 'reloaded'"
+
+- name: "{{docker_container}} - Post docker - stop and disable container service"
+  become: true
+  service: name="{{docker_container}}"
+           state=stopped
+           enabled=no
+  when: docker_state == 'stopped'
+
 - name: "{{docker_container}} - Post docker - enable container service"
   become: true
   service: name="{{docker_container}}"
            enabled={{docker_state in ['present', 'started', 'reloaded', 'restarted']}}
 
 ## Clean up images after pulled and running
-##- name: "{{docker_container}} - Clean up images after pulled and running"
-##  include: sonicdocker_clean.yml
-##  when: "(docker_state == 'reloaded' and 'Status: Downloaded newer image' in pull_result.stdout) or  \
-##        docker_state == 'absent'"
+- name: "{{docker_container}} - Clean up images after pulled and running"
+  include: sonicdocker_clean.yml
+  when: "(docker_state == 'reloaded' and 'Status: Downloaded newer image' in pull_result.stdout) or  \
+        docker_state == 'absent'"
 
 ## Reset the module variables to default values to prevent global side-effect
 ## Note: must be consistent with header part
@@ -174,6 +189,7 @@
     docker_net: host
     docker_state: reloaded
     docker_volumes: []
+    docker_volumes_from: []
     docker_privileged: no
     docker_log_driver: json-file
     docker_env: {}

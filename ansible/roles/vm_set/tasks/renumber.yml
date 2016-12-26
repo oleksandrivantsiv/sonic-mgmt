@@ -1,21 +1,20 @@
-- name: Calculating vlan_base_old. vm set {{ id }}
-  shell: ifconfig -a | fgrep {{ external_iface }}. | cut -f1 -d ' ' | cut -f2 -d '.' | sort -n | head -n 1
-  register: vlan_base_output
+- name: Unbind external ifaces to VM set. vm set {{ id }}
+  vm_network:
+    cmd: 'unbind'
+    vm_set_id: "{{ id }}"
+    port1_bridge: "{{ port1_bridge }}"
+    vm_set_dict: "{{ VMs }}"
+    fp_mtu: "{{ fp_mtu_size }}"
+    ext_iface: "{{ external_iface }}"
+    vlan_base: "{{ vlan_base }}"
 
-- name: Setting vlan_base_old {{ vlan_base_output.stdout }}. vm set {{ id }}
-  set_fact: vlan_base_old={{ vlan_base_output.stdout }}
+- name: Bind external ifaces to VM set. vm set {{ id }}
+  vm_network:
+    cmd: 'bind'
+    vm_set_id: "{{ id }}"
+    port1_bridge: "{{ port1_bridge }}"
+    vm_set_dict: "{{ VMs }}"
+    fp_mtu: "{{ fp_mtu_size }}"
+    ext_iface: "{{ external_iface }}"
+    vlan_base: "{{ vlan_base }}"
 
-- name: Remove old external interfaces. vm set {{ id }}
-  include: delete_vlan.yml
-  vars:
-    port0_bridge: "br-vm{{ id }}-vlan{{ item.value.vlan|int - 1 }}"
-    vlan_iface: "{{ external_iface }}.{{ vlan_base_old|int + item.value.vlan - 1 }}"
-  with_dict: "{{ VMs }}"
-
-- name: Add external interfaces. vm set {{ id }}
-  include: add_vlan.yml
-  vars:
-    port0_bridge: "br-vm{{ id }}-vlan{{ item.value.vlan|int - 1 }}"
-    vlan: "{{ vlan_base|int + item.value.vlan|int - 1 }}"
-    vlan_iface: "{{ external_iface }}.{{ vlan_base|int + item.value.vlan|int - 1 }}"
-  with_dict: "{{ VMs }}"
