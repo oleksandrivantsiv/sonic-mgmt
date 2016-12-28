@@ -67,9 +67,9 @@
           <Name>HostIP</Name>
           <AttachTo>eth0</AttachTo>
           <a:Prefix xmlns:b="Microsoft.Search.Autopilot.Evolution">
-            <b:IPPrefix>10.255.0.233/24</b:IPPrefix>
+            <b:IPPrefix>10.224.23.155/24</b:IPPrefix>
           </a:Prefix>
-          <a:PrefixStr>10.255.0.233/24</a:PrefixStr>
+          <a:PrefixStr>10.224.23.155/24</a:PrefixStr>
         </a:ManagementIPInterface>
       </ManagementIPInterfaces>
       <MplsInterfaces/>

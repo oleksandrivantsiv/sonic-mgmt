@@ -1,10 +1,10 @@
-root_path: /home/azure/veos-vm
-vm_images_url: https://acsbe.blob.core.windows.net/vmimages
-cd_image_filename: Aboot-veos-serial-2.1.0.iso
-hdd_image_filename: vEOS-lab-4.15.2.1F.vmdk
+root_path: /images/veos-vm
+#vm_images_url: https://acsbe.blob.core.windows.net/vmimages
+cd_image_filename: Aboot-veos-8.0.0.iso
+hdd_image_filename: vEOS-lab-4.16.6M.vmdk
 
 # proxy
-proxy_env:
-  http_proxy: http://10.252.0.99:3128
-  https_proxy: http://10.252.0.99:3128
+#proxy_env:
+#  http_proxy: http://10.252.0.99:3128
+#  https_proxy: http://10.252.0.99:3128
 
