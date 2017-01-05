@@ -28,9 +28,14 @@ iface eth0 inet static
     #### management port up rules"
     up ip route add default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
     up ip rule add from {{ minigraph_mgmt_interface['addr'] }}/32 table default
+    up ip route add 10.224.13.0/24 via 10.224.23.254 dev eth0
+    up ip route add 10.224.1.0/24 via 10.224.23.254 dev eth0
     #### management port down rules"
     down ip route delete default via {{ minigraph_mgmt_interface['gwaddr'] }} dev eth0 table default
     down ip rule delete from {{ minigraph_mgmt_interface['addr'] }}/32 table default
+    down ip route del 10.224.13.0/24 via 10.224.23.254 dev eth0
+    down ip route del 10.224.1.0/24 via 10.224.23.254 dev eth0
+    dns-nameservers 10.224.1.102
     {# TODO: COPP policy type rules #}
 {% endblock mgmt_interface %}
 #
