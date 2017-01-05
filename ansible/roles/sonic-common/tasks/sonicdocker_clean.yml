@@ -2,4 +2,4 @@
   script: "files/docker_clean.sh"
   register: rmi_result
   changed_when: rmi_result.stdout != ""
-  failed_when: rmi_result.stderr != "" or rmi_result.rc != 0
+  #failed_when: rmi_result.stderr != "" or rmi_result.rc != 0
