@@ -3,9 +3,9 @@ mgmt_gw: 10.224.23.254
 external_iface: p4p1
 
 
-ptf_1_enabled: false
-ptf_1_mgmt_ip: 10.255.0.188/24
-ptf_1_vlan_base: 393
+ptf_1_enabled: true
+ptf_1_mgmt_ip: 10.224.23.232/24
+ptf_1_vlan_base: 101
 
 ptf_2_enabled: false
 ptf_2_mgmt_ip: 10.255.0.50/24
@@ -29,7 +29,7 @@ ptf_6_vlan_base: 425
 
 vm_1_enabled: true
 vm_1_vlan_base: 101
-vm_1_injected_ip: 10.224.23.74/24
+vm_1_injected_ip: 10.224.23.237/24
 VMs_1:
   ARISTA01T0:
     num: 0
