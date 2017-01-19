@@ -2,12 +2,6 @@
 # Run FIB test and Perform log analysis.
 #-----------------------------------------
 
-- fail: msg="information about testbed missing."
-  when: testbed_type is not defined
-
-- fail: msg="Invalid testbed_type value '{{testbed_type}}'"
-  when: testbed_type not in ['lag', 'fib']
-
 # Gather minigraph facts
 - name: Gathering minigraph facts about the device
   minigraph_facts: host={{ inventory_hostname }}
@@ -25,22 +19,18 @@
   debug: msg="{{ alias_reverse_map }}"
 
 # Generate file with BGP routes information
-- template: src=fib.j2 dest=/tmp/fib.txt
+- template: src=lag.j2 dest=/tmp/lag.txt
   connection: local
 
-- name: Copy route into file to the PTF host
-  copy: src="/tmp/fib.txt" dest="/tmp/route_info.txt"
-  delegate_to: "{{ ptf_host }}"
-
 - set_fact:
-    testname: fib
+    testname: lag
     run_dir: /tmp
     out_dir: /tmp/ansible-loganalyzer-results
-    test_match_file: fib_match_messages.txt
-    test_ignore_file: fib_ignore_messages.txt
-    test_expect_file: fib_expect_messages.txt
+    test_match_file: lag_match_messages.txt
+    test_ignore_file: lag_ignore_messages.txt
+    test_expect_file: lag_expect_messages.txt
     match_file: loganalyzer_common_match.txt
-    ignore_file: loganalyzer_common_ignore.txt
+    ignore_file: loganalyzer_common_ignore.txt    
     tests_location: "{{ 'roles/test/tasks' }}"
 
 # Separate set_fact is required to be able to use 'testname' fact.
@@ -58,16 +48,16 @@
 
 - include: roles/test/files/tools/loganalyzer/loganalyzer_init.yml
 
-- debug : msg="INVOKE FIB TEST"
+- debug : msg="INVOKE LAG TEST"
 
 - block:
 
     - name: copy the test to ptf container
       copy: src=roles/test/files/acstests dest=/root
       delegate_to: "{{ ptf_host }}"
-
+      
     - name: "Running test {{ testname }}"
-      shell: ptf --test-dir acstests fib_test.FibTest  --platform remote -t "verbose=True;router_mac='{{ ansible_Ethernet0['macaddress'] }}';route_info='/tmp/route_info.txt'"
+      shell: ptf --test-dir acstests lag_test.LagAllRoutes  --platform remote -t "verbose=True;router_mac='{{ ansible_Ethernet0['macaddress'] }}';lag_info='/tmp/lag.txt'"
       args:
         chdir: /root
       delegate_to: "{{ ptf_host }}"
