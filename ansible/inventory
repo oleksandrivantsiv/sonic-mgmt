@@ -20,6 +20,8 @@ sonic_latest
 [leaf_topo_1]
 switch1
 switch5
+arc-switch1026
 
 [ptf]
 ptf-1 ansible_host=10.0.0.200 ansible_ssh_user=root ansible_ssh_pass=password
+ptf-fib ansible_host=10.224.23.237 ansible_ssh_user=root ansible_ssh_pass=root
