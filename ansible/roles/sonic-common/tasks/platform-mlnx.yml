@@ -26,8 +26,8 @@
            state=started
            enabled=yes
 
-- name: Ensure MLNX Platform modules are installed
-  apt: pkg=hw-management
-       state=present
-       default_release={{ apt_default_release }}
-       force=yes
+#- name: Ensure MLNX Platform modules are installed
+#  apt: pkg=hw-management
+#       state=present
+#       default_release={{ apt_default_release }}
+#       force=yes
