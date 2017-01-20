@@ -169,7 +169,7 @@ class VMNetwork(object):
         ports = VMNetwork.get_ovs_br_ports(br_name)
 
         if injected_iface not in ports:
-            VMNetwork.cmd('ovs-vsctl add-port %s %s' % (br_name, injected_iface))
+            VMNetwork.cmd('ovs-vsctl add-port %s %s -- set Interface %s ofport_request=1' % (br_name, injected_iface, injected_iface))
 
         if vlan_iface not in ports:
             VMNetwork.cmd('ovs-vsctl add-port %s %s' % (br_name, vlan_iface))
