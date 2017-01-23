@@ -13,7 +13,6 @@ ExecStartPre=/usr/bin/mst start
 ExecStartPre=-/etc/init.d/xpnet.sh stop
 ExecStartPre=/etc/init.d/xpnet.sh start
 {% endif %}
-ExecStartPre=/usr/bin/docker exec database redis-cli FLUSHALL
 ExecStart=/usr/bin/docker start -a syncd
 ExecStop=/usr/bin/docker stop syncd
 {% if sonic_hwsku == 'ACS-MSN2700' %}
