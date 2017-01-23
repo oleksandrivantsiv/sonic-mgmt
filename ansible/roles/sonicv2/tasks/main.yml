@@ -60,7 +60,7 @@
 - name: Restart swss if interfaces are not created
   become: true
   service:
-      name: orchagent
+      name: swss
       state: restarted
       sleep: 10
   when: eth0ifconfig.rc != 0
